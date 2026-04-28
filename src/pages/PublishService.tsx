@@ -502,7 +502,7 @@ export default function PublishService() {
                     disabled={!formData.category}
                   >
                     <option value="">Selecciona un subrubro</option>
-                    {subcategories.map((sub) => (
+                    {subcategories.map((sub: { id: string; name: string }) => (
                       <option key={sub.id} value={sub.id}>
                         {sub.name}
                       </option>

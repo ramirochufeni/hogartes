@@ -3,6 +3,7 @@ import { AuthRequest } from '../middlewares/auth';
 import prisma from '../config/db';
 import { MercadoPagoConfig, Preference } from 'mercadopago';
 import jwt from 'jsonwebtoken';
+import { v4 as uuidv4 } from 'uuid';
 
 // Instancia de MercadoPago (usar credenciales de test en dev)
 const client = new MercadoPagoConfig({ accessToken: process.env.MP_ACCESS_TOKEN || 'TEST-8291404179313589-041802-bd9ac6e83d81b4f4c22fbca131f422b4-177303023' });
@@ -74,7 +75,7 @@ export const createProviderProfile: RequestHandler = async (req, res) => {
     // Upsert ProviderProfile
     const profile = await prisma.providerprofile.create({
       data: {
-        id: generateId(),
+        id: uuidv4(),
         userId,
         legalName,
         documentNumber,
@@ -432,7 +433,7 @@ export const subscribeCheckout: RequestHandler = async (req, res) => {
     // Generar Transacción PENDING
     const transaction = await prisma.transaction.create({
       data: {
-        id: generateId(),
+        id: uuidv4(),
         providerId: providerProfile.id,
         planType,
         status: 'PENDING',

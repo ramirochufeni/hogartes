@@ -1,0 +1,277 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model auditlog {
+  id        String   @id
+  adminId   String
+  userId    String
+  action    String
+  details   String?  @db.Text
+  createdAt DateTime @default(now())
+}
+
+model authtoken {
+  id        String         @id
+  userId    String
+  token     String         @unique(map: "AuthToken_token_key")
+  type      authtoken_type
+  expiresAt DateTime
+  createdAt DateTime       @default(now())
+  user      user           @relation(fields: [userId], references: [id], map: "AuthToken_userId_fkey")
+
+  @@index([userId], map: "AuthToken_userId_fkey")
+}
+
+model category {
+  id          String        @id
+  name        String        @unique(map: "Category_name_key")
+  icon        String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime
+  subcategory subcategory[]
+}
+
+model collaborator {
+  id           String         @id
+  name         String
+  code         String         @unique(map: "Collaborator_code_key")
+  isActive     Boolean        @default(true)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime
+  subscription subscription[]
+  transaction  transaction[]
+}
+
+model conversation {
+  id                                 String    @id
+  serviceId                          String
+  clientId                           String
+  providerId                         String
+  createdAt                          DateTime  @default(now())
+  updatedAt                          DateTime
+  client                             user      @relation("conversation_clientIdTouser", fields: [clientId], references: [id], map: "Conversation_clientId_fkey")
+  provider                           user      @relation("conversation_providerIdTouser", fields: [providerId], references: [id], map: "Conversation_providerId_fkey")
+  service                            service   @relation(fields: [serviceId], references: [id], map: "Conversation_serviceId_fkey")
+  messages                           message[]
+
+  @@unique([clientId, providerId, serviceId], map: "Conversation_clientId_providerId_serviceId_key")
+  @@index([providerId], map: "Conversation_providerId_fkey")
+  @@index([serviceId], map: "Conversation_serviceId_fkey")
+}
+
+model message {
+  id             String       @id
+  conversationId String
+  senderId       String
+  content        String       @db.Text
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+  conversation   conversation @relation(fields: [conversationId], references: [id], map: "Message_conversationId_fkey")
+  sender         user         @relation(fields: [senderId], references: [id], map: "Message_senderId_fkey")
+
+  @@index([conversationId], map: "Message_conversationId_fkey")
+  @@index([senderId], map: "Message_senderId_fkey")
+}
+
+model news {
+  id          String    @id
+  title       String
+  content     String    @db.Text
+  status      String    @default("DRAFT")
+  isFeatured  Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  publishedAt DateTime?
+  imageUrl    String?
+}
+
+model providerprofile {
+  id                 String                             @id
+  userId             String                             @unique(map: "ProviderProfile_userId_key")
+  phone              String?
+  bio                String?
+  verificationStatus providerprofile_verificationStatus @default(PENDING)
+  createdAt          DateTime                           @default(now())
+  updatedAt          DateTime
+  city               String?
+  province           String?
+  civilStatus        String?
+  contactEmail       String?
+  cuit               String?
+  documentNumber     String?
+  fiscalAddress      String?
+  fiscalCondition    String?
+  iibb               String?
+  legalName          String?
+  publicUsername     String?                            @unique(map: "ProviderProfile_publicUsername_key")
+  user               user                               @relation(fields: [userId], references: [id], map: "ProviderProfile_userId_fkey")
+  service            service[]
+  subscription       subscription?
+  transaction        transaction[]
+}
+
+model service {
+  id              String          @id
+  title           String
+  description     String
+  providerId      String
+  subcategoryId   String
+  isActive        Boolean         @default(true)
+  price           Decimal?        @db.Decimal(10, 2)
+  coverImage      String?
+  createdAt       DateTime        @default(now())
+  updatedAt       DateTime
+  videoUrl        String?
+  conversation    conversation[]
+  review          review[]
+  question        question[]
+  provider        providerprofile @relation(fields: [providerId], references: [id], map: "Service_providerId_fkey")
+  subcategory     subcategory     @relation(fields: [subcategoryId], references: [id], map: "Service_subcategoryId_fkey")
+
+  @@index([providerId], map: "Service_providerId_fkey")
+  @@index([subcategoryId], map: "Service_subcategoryId_fkey")
+}
+
+model subcategory {
+  id         String    @id
+  name       String
+  categoryId String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime
+  service    service[]
+  category   category  @relation(fields: [categoryId], references: [id], map: "Subcategory_categoryId_fkey")
+
+  @@index([categoryId], map: "Subcategory_categoryId_fkey")
+}
+
+model subscription {
+  id              String                @id
+  providerId      String                @unique(map: "Subscription_providerId_key")
+  planType        subscription_planType @default(BASIC)
+  status          subscription_status   @default(ACTIVE)
+  expiresAt       DateTime
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime
+  collaboratorId  String?
+  collaborator    collaborator?         @relation(fields: [collaboratorId], references: [id], map: "Subscription_collaboratorId_fkey")
+  providerProfile providerprofile       @relation(fields: [providerId], references: [id], map: "Subscription_providerId_fkey")
+
+  @@index([collaboratorId], map: "Subscription_collaboratorId_fkey")
+}
+
+model transaction {
+  id              String               @id
+  providerId      String
+  mpPaymentId     String?
+  mpPreferenceId  String?              @unique(map: "Transaction_mpPreferenceId_key")
+  status          String               @default("PENDING")
+  planType        transaction_planType
+  collaboratorId  String?
+  amount          Decimal?             @db.Decimal(10, 2)
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime
+  collaborator    collaborator?        @relation(fields: [collaboratorId], references: [id], map: "Transaction_collaboratorId_fkey")
+  providerProfile providerprofile      @relation(fields: [providerId], references: [id], map: "Transaction_providerId_fkey")
+
+  @@index([collaboratorId], map: "Transaction_collaboratorId_fkey")
+  @@index([providerId], map: "Transaction_providerId_fkey")
+}
+
+model user {
+  id                                         String           @id
+  email                                      String           @unique(map: "User_email_key")
+  passwordHash                               String
+  name                                       String
+  role                                       user_role        @default(CLIENT)
+  createdAt                                  DateTime         @default(now())
+  updatedAt                                  DateTime
+  isEmailVerified                            Boolean          @default(false)
+  isDeleted                                  Boolean          @default(false)
+  authtoken                                  authtoken[]
+  conversationsAsClient                      conversation[]   @relation("conversation_clientIdTouser")
+  conversationsAsProvider                    conversation[]   @relation("conversation_providerIdTouser")
+  messages                                   message[]
+  providerProfile                            providerprofile?
+  review                                     review[]
+  question_userId                            question[]       @relation("question_userIdTouser")
+  question_answeredById                      question[]       @relation("question_answeredByIdTouser")
+}
+
+enum subscription_planType {
+  BASIC
+  DOUBLE
+  MONTHLY
+  QUARTERLY
+  SEMESTER
+  YEARLY
+}
+
+enum authtoken_type {
+  VERIFY_EMAIL
+  RESET_PASSWORD
+}
+
+enum subscription_status {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+}
+
+enum providerprofile_verificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+enum user_role {
+  CLIENT
+  PROVIDER
+  ADMIN
+}
+
+enum transaction_planType {
+  BASIC
+  DOUBLE
+  MONTHLY
+  QUARTERLY
+  SEMESTER
+  YEARLY
+}
+
+model review {
+  id        String   @id
+  serviceId String
+  userId    String
+  rating    Int
+  comment   String?  @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  service   service  @relation(fields: [serviceId], references: [id])
+  user      user     @relation(fields: [userId], references: [id])
+
+  @@unique([userId, serviceId])
+  @@index([serviceId])
+}
+
+model question {
+  id                         String   @id
+  serviceId                  String
+  userId                     String
+  content                    String   @db.Text
+  answer                     String?  @db.Text
+  answeredAt                 DateTime?
+  answeredById               String?
+  createdAt                  DateTime @default(now())
+  updatedAt                  DateTime @updatedAt
+  service                    service  @relation(fields: [serviceId], references: [id])
+  user_question_userId       user     @relation("question_userIdTouser", fields: [userId], references: [id])
+  user_question_answeredById user?    @relation("question_answeredByIdTouser", fields: [answeredById], references: [id])
+
+  @@index([serviceId])
+}

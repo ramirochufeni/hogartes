@@ -1,6 +1,9 @@
 import { getToken } from './authHelpers';
 
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL =
+  import.meta.env.VITE_API_URL
+    ? `${import.meta.env.VITE_API_URL}/api`
+    : 'http://localhost:5000/api';
 
 interface RequestOptions extends RequestInit {
   data?: any;
@@ -8,7 +11,7 @@ interface RequestOptions extends RequestInit {
 
 export async function fetchApi(endpoint: string, options: RequestOptions = {}) {
   const token = getToken();
-  
+
   const headers: HeadersInit = {
     'Content-Type': 'application/json',
   };

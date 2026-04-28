@@ -66,6 +66,7 @@ export interface Service {
     city?: string | null;
     province?: string | null;
     publicUsername?: string | null;
+    verificationStatus?: 'PENDING' | 'VERIFIED' | 'REJECTED' | string | null;
     user: {
       name: string;
       email?: string;
@@ -162,6 +163,10 @@ export interface ProviderMeResponse {
     documentNumber: string | null;
     cuit: string | null;
     fiscalCondition: string | null;
+    fiscalAddress?: string | null;
+    iibb?: string | null;
+    civilStatus?: string | null;
+
     verificationStatus: 'PENDING' | 'VERIFIED' | 'REJECTED';
     user: {
       name: string;

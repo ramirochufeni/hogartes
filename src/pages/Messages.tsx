@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MessageSquare, Send, Loader2, User, ChevronLeft, ArrowLeft } from 'lucide-react';
+import { MessageSquare, Send, Loader2, User, ArrowLeft } from 'lucide-react';
 import { fetchApi } from '../lib/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -66,7 +66,7 @@ export default function Messages() {
     loadConversations();
     const interval = setInterval(loadConversations, 10000);
     return () => clearInterval(interval);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isAuthenticated]);
 
   // When a new conversation is selected from URL (redirect from "Contactar"),
@@ -75,7 +75,7 @@ export default function Messages() {
     if (activeConvId && isAuthenticated) {
       loadConversations();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeConvId]);
 
   // Load messages for active conversation
@@ -92,7 +92,7 @@ export default function Messages() {
         const { data } = await fetchApi(`/conversations/${activeConvId}/messages`);
         if (!cancelled) setMessages(Array.isArray(data) ? data : []);
         // Mark as read silently
-        fetchApi(`/conversations/${activeConvId}/read`, { method: 'PATCH' }).catch(() => {});
+        fetchApi(`/conversations/${activeConvId}/read`, { method: 'PATCH' }).catch(() => { });
       } catch (err) {
         console.error('Error loading messages:', err);
       } finally {
@@ -139,7 +139,11 @@ export default function Messages() {
         data: { content }
       });
       setMessages(prev => [...prev, data]);
-      setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 50);
+      setTimeout(() => {
+        if (messagesContainerRef.current) {
+          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+        }
+      }, 50);
     } catch (err) {
       console.error('Error sending message:', err);
       alert('No se pudo enviar el mensaje. Reintentá en unos segundos.');

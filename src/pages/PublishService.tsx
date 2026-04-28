@@ -180,7 +180,7 @@ export default function PublishService() {
       if (imageFile) {
         const fd = new FormData();
         fd.append('image', imageFile);
-        const r = await fetch('http://localhost:5000/api/upload', { method: 'POST', body: fd });
+        const r = await fetch(`${import.meta.env.VITE_API_URL}/api/upload`, { method: 'POST', body: fd });
         const j = await r.json();
         if (!r.ok) throw new Error(j.error || 'Error al subir la imagen');
         coverImage = j.url;

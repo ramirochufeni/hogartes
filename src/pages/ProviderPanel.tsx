@@ -35,7 +35,7 @@ export default function ProviderPanel() {
 
   return (
     <div className="container" style={{ padding: '2rem 1.25rem', display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
-      
+
       {/* Sidebar Navigation */}
       <aside style={{ flex: '1 1 220px', maxWidth: '270px' }}>
         <div className="card" style={{ padding: '1rem', position: 'sticky', top: '90px' }}>
@@ -155,7 +155,7 @@ function planLabel(planType: string | undefined): string {
   if (planType === 'QUARTERLY') return 'Plan Trimestral';
   if (planType === 'SEMESTER') return 'Plan Semestral';
   if (planType === 'YEARLY') return 'Plan Anual';
-  
+
   // Backwards compatibility during transition
   if (planType === 'DOUBLE') return 'Plan Doble';
   if (planType === 'BASIC') return 'Plan Básico';
@@ -400,8 +400,8 @@ function ProviderProfileEdit() {
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saveSuccess, setSaveSuccess] = useState(false);
-  const [form, setForm] = useState({ 
-    phone: '', city: '', province: '', bio: '', publicUsername: '', contactEmail: '' 
+  const [form, setForm] = useState({
+    phone: '', city: '', province: '', bio: '', publicUsername: '', contactEmail: ''
   });
 
   // Inicializar form cuando llegan los datos
@@ -510,8 +510,8 @@ function ProviderProfileEdit() {
             label="Estado de verificación"
             value={
               profile.verificationStatus === 'VERIFIED' ? '✓ Verificado'
-              : profile.verificationStatus === 'REJECTED' ? '✗ Rechazado'
-              : '⏳ Pendiente de verificación'
+                : profile.verificationStatus === 'REJECTED' ? '✗ Rechazado'
+                  : '⏳ Pendiente de verificación'
             }
             editable={false}
           />
@@ -725,7 +725,7 @@ function ProviderServices() {
       if (editImageFile) {
         const formData = new FormData();
         formData.append('image', editImageFile);
-        const uploadRes = await fetch('http://localhost:5000/api/upload', { method: 'POST', body: formData });
+        const uploadRes = await fetch(`${import.meta.env.VITE_API_URL}/api/upload`, { method: 'POST', body: formData });
         const uploadJson = await uploadRes.json();
         if (!uploadRes.ok) throw new Error(uploadJson.error || 'Error al subir imagen');
         coverImageUrl = uploadJson.url;
@@ -1411,7 +1411,7 @@ function ProviderFiscalData() {
           <ShieldCheck size={18} style={{ display: 'inline', verticalAlign: 'middle', marginRight: '0.4rem' }} />
           Información Legal (Privada)
         </h3>
-        
+
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem', marginBottom: '2rem' }}>
           <div style={{ gridColumn: '1 / -1' }}>
             <label style={{ display: 'block', fontSize: '0.9rem', fontWeight: 500, marginBottom: '0.4rem' }}>Nombre y apellido completo conforme DNI *</label>
@@ -1472,9 +1472,9 @@ function ProviderFiscalData() {
 
         <div style={{ borderTop: '1px solid var(--color-border)', paddingTop: '1.5rem', marginTop: '1.5rem', display: 'flex', justifyContent: 'flex-end', gap: '1rem' }}>
           <button type="button" className="btn btn-outline" onClick={() => navigate('/panel-prestador')}>Cancelar</button>
-          <button 
-            type="button" 
-            className="btn btn-primary" 
+          <button
+            type="button"
+            className="btn btn-primary"
             disabled={!form.legalName || !form.documentNumber || !form.cuit || !form.fiscalCondition || !form.fiscalAddress || !form.iibb}
             onClick={() => setShowConfirm(true)}
           >

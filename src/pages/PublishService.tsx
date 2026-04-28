@@ -3,7 +3,7 @@ import { Camera, AlertCircle, Save, AlertTriangle, ArrowRight, CreditCard, Trash
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { fetchApi } from '../lib/api';
-import type { Category, Subcategory } from '../lib/types';
+import type { Category } from '../lib/types';
 
 export default function PublishService() {
   const navigate = useNavigate();

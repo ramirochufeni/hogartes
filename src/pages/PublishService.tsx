@@ -220,8 +220,8 @@ export default function PublishService() {
     }
   };
 
-  const selectedCat = categories.find((c) => c.id === formData.category);
-  const subcategories: Subcategory[] = selectedCat ? selectedCat.subcategories : [];
+  const selectedCat = categories.find(c => c.id === form.category);
+  const subcategories = selectedCat?.subcategories ?? [];
 
   // --- Pantalla: no autenticado ---
   if (!isAuthenticated) {

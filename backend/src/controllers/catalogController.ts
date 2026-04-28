@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import prisma from '../config/db';
+import { randomUUID } from 'crypto';
 
 export const getCategories = async (req: Request, res: Response): Promise<void> => {
   try {
@@ -16,11 +17,21 @@ export const createCategoryTest = async (req: Request, res: Response): Promise<v
   try {
     const cat = await prisma.category.create({
       data: {
+        id: randomUUID(),
         name: "Servicios MOCK",
+        updatedAt: new Date(),
         subcategory: {
           create: [
-            { id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9), name: "Limpieza", updatedAt: new Date() },
-            { id: Date.now().toString(36) + Math.random().toString(36).substr(2, 9) + "x", name: "Reparación", updatedAt: new Date() }
+            {
+              id: randomUUID(),
+              name: "Limpieza",
+              updatedAt: new Date()
+            },
+            {
+              id: randomUUID(),
+              name: "Reparación",
+              updatedAt: new Date()
+            }
           ]
         }
       },

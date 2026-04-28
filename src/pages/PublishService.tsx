@@ -192,7 +192,10 @@ export default function PublishService() {
         setVideoUploading(true);
         const fd = new FormData();
         fd.append('video', videoFile);
-        const r = await fetch('http://localhost:5000/api/upload/video', { method: 'POST', body: fd });
+        const r = await fetch(`${import.meta.env.VITE_API_URL}/api/upload/video`, {
+          method: 'POST',
+          body: fd
+        });
         const j = await r.json();
         setVideoUploading(false);
         if (!r.ok) throw new Error(j.error || 'Error al subir el video');

@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { randomUUID } from 'crypto';
 
 const prisma = new PrismaClient();
 
@@ -199,7 +200,7 @@ async function main() {
 
   // 1. ELIMINAR CUALQUIER MOCK
   console.log('🧹 Limpiando categorías MOCK de pruebas...');
-  
+
   // Buscar categoría de MOCK y sus dependencias
   const mockCat = await prisma.category.findUnique({
     where: { name: 'Servicios MOCK' }
@@ -210,7 +211,7 @@ async function main() {
     const mockSubcategories = await prisma.subcategory.findMany({
       where: { categoryId: mockCat.id }
     });
-    
+
     for (const sub of mockSubcategories) {
       // Eliminar servicios atados a la subcategoria MOCK
       await prisma.service.deleteMany({
@@ -237,9 +238,11 @@ async function main() {
     // Intenta crear o encontrar la categoría base
     const dbCategory = await prisma.category.upsert({
       where: { name: cat.name },
-      update: {}, 
+      update: {},
       create: {
+        id: randomUUID(),
         name: cat.name,
+        updatedAt: new Date(),
       }
     });
 
@@ -256,8 +259,10 @@ async function main() {
       if (!existingSub) {
         await prisma.subcategory.create({
           data: {
+            id: randomUUID(),
             name: subName,
-            categoryId: dbCategory.id
+            categoryId: dbCategory.id,
+            updatedAt: new Date(),
           }
         });
         subCount++;

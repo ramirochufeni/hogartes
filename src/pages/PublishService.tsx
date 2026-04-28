@@ -222,7 +222,7 @@ export default function PublishService() {
 
   const safeCategories = Array.isArray(categories) ? categories : [];
   const selectedCat = safeCategories.find(c => c.id === formData.category);
-  const subcategories = Array.isArray(selectedCat?.subcategories) ? selectedCat.subcategories : [];
+  const subcategories = (selectedCat as any)?.subcategory ?? (selectedCat as any)?.subcategories ?? [];
 
   // --- Pantalla: no autenticado ---
   if (!isAuthenticated) {
